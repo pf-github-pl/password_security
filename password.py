@@ -1,4 +1,4 @@
-from validator import Validator
+from validator import PolicyValidator, HaveIBeenPwnedValidator
 
 
 class Password:
@@ -6,8 +6,11 @@ class Password:
         self.password = password
 
     def is_valid(self):
-        validator = Validator(self.password)
-        return validator.validate()
+        policy_validator = PolicyValidator()
+        leaks_validator = HaveIBeenPwnedValidator()
+        if policy_validator.validate(self.password):
+            return leaks_validator.validate(self.password)
+        return False
 
     def __repr__(self):
         return f'Your password: {self.password}'
