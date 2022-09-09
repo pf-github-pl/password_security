@@ -3,7 +3,9 @@ from hashlib import sha1
 import logging
 from datetime import datetime
 from requests import get
+import pathlib
 
+pathlib.Path('./logs/').mkdir(parents=True, exist_ok=True)
 log_path = './logs/' + datetime.now().strftime('%Y%m%d_%H%M%S') + '_validator.log'
 logging.basicConfig(level='INFO', filename=log_path)
 

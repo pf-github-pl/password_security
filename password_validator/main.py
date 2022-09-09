@@ -1,4 +1,4 @@
-from password import Password
+from password_validator.password import Password
 
 
 def filter_safe_passwords(in_file: str, out_file: str):
@@ -6,6 +6,10 @@ def filter_safe_passwords(in_file: str, out_file: str):
         passwords_stripped = [password.strip() for password in inp.readlines()]
         safe_passwords = [pwd + '\n' for pwd in passwords_stripped if Password(pwd).is_valid()]
         out.writelines(safe_passwords)
+
+
+def validate_single_password(password: str):
+    return Password(password).is_valid()
 
 
 if __name__ == '__main__':

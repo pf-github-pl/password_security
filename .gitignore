@@ -1,6 +1,9 @@
 venv/
 .idea/
+dist/
+*egg-info/
 content/
 logs/
+.DS_Store
 passwords.txt
 safe_passwords.txt

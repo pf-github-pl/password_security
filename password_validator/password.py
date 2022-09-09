@@ -1,4 +1,4 @@
-from validator import PolicyValidator, HaveIBeenPwnedValidator
+from password_validator.validator import PolicyValidator, HaveIBeenPwnedValidator
 
 
 class Password:
