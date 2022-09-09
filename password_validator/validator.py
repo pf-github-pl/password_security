@@ -20,7 +20,6 @@ class Validator(ABC):
         """Takes password as a string and evaluates if is valid against some conditions"""
 
 
-
 class PolicyValidator(Validator):
     """Class representing validator for a set of password policy rules"""
     @staticmethod
