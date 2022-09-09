@@ -1,13 +1,14 @@
 # Password security validator
 ## Description
 Application for password validation.
+
 Validates:
 1. against password policy:
     - min. 8 char
     - min. 1 special char `!@#$%^&*`
     - min. 1 uppercase letter
     - min. 1 lowercase letter
-2. if password was not leaked, using HaveIBeenPwned database API.
+2. if password was not leaked, using [HaveIBeenPwned.com database API](https://haveibeenpwned.com/API/v3).
 
 ## Requirements
 requests==2.28.1
