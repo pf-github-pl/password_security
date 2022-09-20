@@ -38,9 +38,7 @@ class SpecialCharValidator(Validator):
         self.password = password
 
     def validate(self):
-        # special_chars = '''!@#$%^&*()_+-=[]{};:'"\|<>?,./`~'''
-        special_chars = '!@#$%^&*'
-        pass_special_chars = [char for char in self.password if char in special_chars]
+        pass_special_chars = [char for char in self.password if not char.isalnum()]
         return len(pass_special_chars) > 0
 
 

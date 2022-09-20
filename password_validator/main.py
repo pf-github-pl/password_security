@@ -14,11 +14,5 @@ def filter_safe_passwords(in_file: str, out_file: str):
         out.writelines(safe_passwords)
 
 
-def validate_single_password(password: str):
-    """Method for single password validation,
-    take password string and return True if is valid, or False otherwise"""
-    return PasswordValidator(password).validate()
-
-
 if __name__ == '__main__':
     filter_safe_passwords('passwords.txt', 'safe_passwords.txt')
