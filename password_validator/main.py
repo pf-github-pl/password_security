@@ -1,6 +1,6 @@
 """Password validator app main module"""
 
-from password_validator.password import Password
+from validator import PasswordValidator
 
 
 def filter_safe_passwords(in_file: str, out_file: str):
@@ -10,14 +10,14 @@ def filter_safe_passwords(in_file: str, out_file: str):
     write a list of safe passwords to the output file"""
     with open(in_file, 'r', encoding='utf-8') as inp, open(out_file, 'w', encoding='utf-8') as out:
         passwords_stripped = [password.strip() for password in inp.readlines()]
-        safe_passwords = [pwd + '\n' for pwd in passwords_stripped if Password(pwd).is_valid()]
+        safe_passwords = [pwd + '\n' for pwd in passwords_stripped if PasswordValidator(pwd).validate()]
         out.writelines(safe_passwords)
 
 
 def validate_single_password(password: str):
     """Method for single password validation,
     take password string and return True if is valid, or False otherwise"""
-    return Password(password).is_valid()
+    return PasswordValidator(password).validate()
 
 
 if __name__ == '__main__':

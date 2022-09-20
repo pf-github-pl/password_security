@@ -16,69 +16,100 @@ logging.basicConfig(level='INFO', filename=log_path)
 class Validator(ABC):
     """Abstract class to represent a validator containing validation method"""
     @abstractmethod
-    def validate(self, password: str):
+    def __init__(self):
+        pass
+    @abstractmethod
+    def validate(self):
         """Takes password as a string and evaluates if is valid against some conditions"""
 
 
-class PolicyValidator(Validator):
-    """Class representing validator for a set of password policy rules"""
-    @staticmethod
-    def has_length(password):
-        """Check if password has a minimum of 8 chars"""
-        return len(password) >= 8
+class LengthValidator(Validator):
+    """Check if password has a minimum of 8 chars"""
+    def __init__(self, password: str):
+        self.password = password
 
-    @staticmethod
-    def contains_special_char(password):
-        """Verify if password contains at least one of the list of special characters: !@#$%^&"""
+    def validate(self):
+        return len(self.password) >= 8
+
+
+class SpecialCharValidator(Validator):
+    """Verify if password contains at least one of the list of special characters: !@#$%^&"""
+    def __init__(self, password: str):
+        self.password = password
+
+    def validate(self):
         # special_chars = '''!@#$%^&*()_+-=[]{};:'"\|<>?,./`~'''
         special_chars = '!@#$%^&*'
-        pass_special_chars = [char for char in password if char in special_chars]
+        pass_special_chars = [char for char in self.password if char in special_chars]
         return len(pass_special_chars) > 0
 
-    @staticmethod
-    def contains_numbers(password):
-        """Verify if password contains at least one digit"""
-        numbers = [char for char in password if char in '1234567890']
+
+class NumberValidator(Validator):
+    """Verify if password contains at least one digit"""
+    def __init__(self, password: str):
+        self.password = password
+
+    def validate(self):
+        numbers = [char for char in self.password if char in '1234567890']
         return len(numbers) > 0
 
-    @staticmethod
-    def contains_lowercase(password):
-        """Verify if password contains at least one lowercase letter"""
-        lowercase_letters = [char for char in password if char.islower()]
+
+class LowercaseValidator(Validator):
+    """Verify if password contains at least one lowercase letter"""
+    def __init__(self, password: str):
+        self.password = password
+
+    def validate(self):
+        lowercase_letters = [char for char in self.password if char.islower()]
         return len(lowercase_letters) > 0
 
-    @staticmethod
-    def contains_uppercase(password):
-        """Verify if password contains at least one uppercase letter"""
-        uppercase_letters = [char for char in password if char.isupper()]
+
+class UppercaseValidator(Validator):
+    """Verify if password contains at least one uppercase letter"""
+    def __init__(self, password: str):
+        self.password = password
+
+    def validate(self):
+        uppercase_letters = [char for char in self.password if char.isupper()]
         return len(uppercase_letters) > 0
 
-    def validate(self, password):
-        """Takes password as a string and asserts that it contains at least:
+
+class PasswordPolicyValidator(Validator):
+    """Takes password as a string and asserts that it contains at least:
         - 8 characters
         - 1 digit
         - 1 special character
         - 1 lowercase letter
         - 1 uppercase letter
         and returns True if all conditions are met ar False otherwise"""
-        try:
-            assert self.has_length(password)
-            assert self.contains_numbers(password)
-            assert self.contains_special_char(password)
-            assert self.contains_lowercase(password)
-            assert self.contains_uppercase(password)
-        except AssertionError:
-            # logging.info(f'Hasło {password} nie spełnia wymogów polityki.')
-            logging.info('Hasło %s nie spełnia wymogów polityki.', password)
-            return False
+    def __init__(self, password):
+        self.password = password
+        self.validators = [
+            LengthValidator,
+            NumberValidator,
+            SpecialCharValidator,
+            LowercaseValidator,
+            UppercaseValidator
+        ]
+
+    def validate(self):
+        for class_name in self.validators:
+            try:
+                assert class_name(self.password).validate()
+            except AssertionError:
+                logging.info('Hasło %s nie spełnia wymogów polityki.', self.password)
+                return False
         return True
+
 
 class HaveIBeenPwnedValidator(Validator):
     """Class representing validator for Have I Been Pwned database of leaked passwords"""
-    @staticmethod
-    def get_password_hash(password):
+    def __init__(self, password):
+        self.password = password
+
+    def get_password_hash(self):
         """Take password and hash it using sha1 algo, return uppercased hex string"""
-        return sha1(password.encode('utf-8')).hexdigest().upper()
+        return sha1(self.password.encode('utf-8')).hexdigest().upper()
 
     @staticmethod
     def get_api_response(hash_prefix):
@@ -92,10 +123,10 @@ class HaveIBeenPwnedValidator(Validator):
             logging.critical(exception)
             raise exception
 
-    def validate(self, password):
+    def validate(self):
         """Take password and validate if it was in any leak,
         if it was not leakead return True, otherwise False"""
-        password_hash = self.get_password_hash(password)
+        password_hash = self.get_password_hash()
         hash_prefix = password_hash[:5]
         suffix_leaks = self.get_api_response(hash_prefix)
         suffix_leaks_tup = [(line.split(':')[0], line.split(':')[1]) for line in suffix_leaks]
@@ -104,6 +135,24 @@ class HaveIBeenPwnedValidator(Validator):
         for leaked_hash, leaks in hashes_leaks:
             if leaked_hash == password_hash:
                 # logging.info(f'Hasło: {password} o hashu {leaked_hash} wyciekło {leaks} razy.')
-                logging.info('Hasło: %s o hashu %s wyciekło %s razy.', password, leaked_hash, leaks)
+                logging.info('Hasło: %s o hashu %s wyciekło %s razy.', self.password, leaked_hash, leaks)
                 return False
         return True
+
+
+class PasswordValidator(Validator):
+    """Password Validator abstraction"""
+    def __init__(self, password: str):
+        """Construct a password object taking password string"""
+        self.password = password
+
+    def validate(self):
+        """Verify if password object is valid,
+        using two validators: PolicyValidator - validates password policies,
+        and HaveIBeenPwnedValidator - validates if password was not leaked already
+        Returns True if both validators returns True, and False otherwise"""
+        policy_validator = PasswordPolicyValidator(self.password)
+        leaks_validator = HaveIBeenPwnedValidator(self.password)
+        if policy_validator.validate():
+            return leaks_validator.validate()
+        return False
