@@ -38,8 +38,7 @@ class SpecialCharValidator(Validator):
         self.password = password
 
     def validate(self):
-        pass_special_chars = [char for char in self.password if not char.isalnum()]
-        return len(pass_special_chars) > 0
+        return any([not char.isalnum() for char in self.password])
 
 
 class NumberValidator(Validator):
@@ -48,8 +47,7 @@ class NumberValidator(Validator):
         self.password = password
 
     def validate(self):
-        numbers = [char for char in self.password if char in '1234567890']
-        return len(numbers) > 0
+        return any([char for char in self.password if char in '1234567890'])
 
 
 class LowercaseValidator(Validator):
@@ -58,8 +56,7 @@ class LowercaseValidator(Validator):
         self.password = password
 
     def validate(self):
-        lowercase_letters = [char for char in self.password if char.islower()]
-        return len(lowercase_letters) > 0
+        return any(char.islower() for char in self.password)
 
 
 class UppercaseValidator(Validator):
@@ -68,8 +65,9 @@ class UppercaseValidator(Validator):
         self.password = password
 
     def validate(self):
-        uppercase_letters = [char for char in self.password if char.isupper()]
-        return len(uppercase_letters) > 0
+        return any(char.isupper() for char in self.password)
+        # uppercase_letters = [char for char in self.password if char.isupper()]
+        # return len(uppercase_letters) > 0
 
 
 class PasswordPolicyValidator(Validator):
