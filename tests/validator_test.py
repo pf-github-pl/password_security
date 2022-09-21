@@ -1,7 +1,13 @@
-from password_validator.validator import PasswordValidator, \
-    LengthValidator, SpecialCharValidator, LowercaseValidator, \
-    UppercaseValidator, NumberValidator, PasswordPolicyValidator, \
+from password_validator.validator import (
+    PasswordValidator,
+    LengthValidator,
+    SpecialCharValidator,
+    LowercaseValidator,
+    UppercaseValidator,
+    NumberValidator,
+    PasswordPolicyValidator,
     HaveIBeenPwnedValidator
+    )
 
 
 def test_password_obj_creation():
