@@ -27,8 +27,10 @@ def test_password_is_valid():
 def test_pass_length():
     assert LengthValidator('abc').validate() is False
     assert LengthValidator('1234567').validate()is False
+    assert LengthValidator('1234567', 10).validate()is False
     assert LengthValidator('12345678').validate() is True
     assert LengthValidator('abcdefghijklmnopqrstuvwxz').validate() is True
+    assert LengthValidator('abc', 3).validate() is True
 
 
 def test_pass_has_special_char():

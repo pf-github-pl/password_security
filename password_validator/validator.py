@@ -25,11 +25,12 @@ class Validator(ABC):
 
 class LengthValidator(Validator):
     """Check if password has a minimum of 8 chars"""
-    def __init__(self, password: str):
+    def __init__(self, password: str, min_length=8):
         self.password = password
+        self.min_length = min_length
 
     def validate(self):
-        return len(self.password) >= 8
+        return len(self.password) >= self.min_length
 
 
 class SpecialCharValidator(Validator):
