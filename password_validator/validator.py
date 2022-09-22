@@ -14,7 +14,8 @@ logging.basicConfig(level='INFO', filename=log_path)
 
 
 class ValidationError(Exception):
-    pass
+    """Specific error type for unsuccessful validation"""
+    # pass
 
 
 class Validator(ABC):
@@ -36,8 +37,7 @@ class LengthValidator(Validator):
     def validate(self):
         if len(self.password) >= self.min_length:
             return True
-        else:
-            raise ValidationError('Password is too short!')
+        raise ValidationError('Password is too short!')
 
 
 class SpecialCharValidator(Validator):
@@ -48,8 +48,7 @@ class SpecialCharValidator(Validator):
     def validate(self):
         if any(not char.isalnum() for char in self.password):
             return True
-        else:
-            raise ValidationError('Password must contain at least one special character!')
+        raise ValidationError('Password must contain at least one special character!')
 
 
 class NumberValidator(Validator):
@@ -60,8 +59,7 @@ class NumberValidator(Validator):
     def validate(self):
         if any(str(num) in self.password for num in range(10)):
             return True
-        else:
-            raise ValidationError('Password must contain at least one number!')
+        raise ValidationError('Password must contain at least one number!')
 
 
 class LowercaseValidator(Validator):
@@ -72,8 +70,7 @@ class LowercaseValidator(Validator):
     def validate(self):
         if any(char.islower() for char in self.password):
             return True
-        else:
-            raise ValidationError('Password must contain at least one lowercase letter!')
+        raise ValidationError('Password must contain at least one lowercase letter!')
 
 
 class UppercaseValidator(Validator):
@@ -84,8 +81,7 @@ class UppercaseValidator(Validator):
     def validate(self):
         if any(char.isupper() for char in self.password):
             return True
-        else:
-            raise ValidationError('Password must contain at least one uppercase letter!')
+        raise ValidationError('Password must contain at least one uppercase letter!')
 
 
 class PasswordPolicyValidator(Validator):

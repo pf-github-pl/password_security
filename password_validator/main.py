@@ -1,6 +1,6 @@
 """Password validator app main module"""
 
-from validator import PasswordValidator
+from password_validator.validator import PasswordValidator
 
 
 def filter_safe_passwords(in_file: str, out_file: str):
@@ -9,8 +9,8 @@ def filter_safe_passwords(in_file: str, out_file: str):
     and if was not leaked (according to HaveIBeenPwned database API),
     write a list of safe passwords to the output file"""
     with open(in_file, 'r', encoding='utf-8') as inp, open(out_file, 'w', encoding='utf-8') as out:
-        passwords_stripped = [password.strip() for password in inp.readlines()]
-        safe_passwords = [pwd + '\n' for pwd in passwords_stripped if PasswordValidator(pwd).validate()]
+        pass_stripped = [password.strip() for password in inp.readlines()]
+        safe_passwords = [pwd + '\n' for pwd in pass_stripped if PasswordValidator(pwd).validate()]
         out.writelines(safe_passwords)
 
 
