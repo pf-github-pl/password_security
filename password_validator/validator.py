@@ -13,6 +13,10 @@ log_path = './logs/' + datetime.now().strftime('%Y%m%d_%H%M%S') + '_validator.lo
 logging.basicConfig(level='INFO', filename=log_path)
 
 
+class ValidationError(Exception):
+    pass
+
+
 class Validator(ABC):
     """Abstract class to represent a validator containing validation method"""
     @abstractmethod
@@ -30,7 +34,10 @@ class LengthValidator(Validator):
         self.min_length = min_length
 
     def validate(self):
-        return len(self.password) >= self.min_length
+        if len(self.password) >= self.min_length:
+            return True
+        else:
+            raise ValidationError('Password is too short!')
 
 
 class SpecialCharValidator(Validator):
@@ -39,7 +46,10 @@ class SpecialCharValidator(Validator):
         self.password = password
 
     def validate(self):
-        return any(not char.isalnum() for char in self.password)
+        if any(not char.isalnum() for char in self.password):
+            return True
+        else:
+            raise ValidationError('Password must contain at least one special character!')
 
 
 class NumberValidator(Validator):
@@ -48,7 +58,10 @@ class NumberValidator(Validator):
         self.password = password
 
     def validate(self):
-        return any(str(num) in self.password for num in range(10))
+        if any(str(num) in self.password for num in range(10)):
+            return True
+        else:
+            raise ValidationError('Password must contain at least one number!')
 
 
 class LowercaseValidator(Validator):
@@ -57,7 +70,10 @@ class LowercaseValidator(Validator):
         self.password = password
 
     def validate(self):
-        return any(char.islower() for char in self.password)
+        if any(char.islower() for char in self.password):
+            return True
+        else:
+            raise ValidationError('Password must contain at least one lowercase letter!')
 
 
 class UppercaseValidator(Validator):
@@ -66,7 +82,10 @@ class UppercaseValidator(Validator):
         self.password = password
 
     def validate(self):
-        return any(char.isupper() for char in self.password)
+        if any(char.isupper() for char in self.password):
+            return True
+        else:
+            raise ValidationError('Password must contain at least one uppercase letter!')
 
 
 class PasswordPolicyValidator(Validator):
@@ -90,9 +109,13 @@ class PasswordPolicyValidator(Validator):
     def validate(self):
         for class_name in self.validators:
             try:
-                assert class_name(self.password).validate()
-            except AssertionError:
-                logging.info('Hasło %s nie spełnia wymogów polityki.', self.password)
+                assert class_name(self.password).validate() is True
+            except ValidationError as error:
+                logging.info(
+                    'Password %s does not comply with the password policy. %s',
+                    self.password,
+                    error
+                )
                 return False
         return True
 
@@ -129,7 +152,7 @@ class HaveIBeenPwnedValidator(Validator):
         for leaked_hash_suffix, leaks in hashes_leaks:
             if leaked_hash_suffix == password_hash[5:]:
                 logging.info(
-                    'Hasło: %s o hashu %s wyciekło %s razy.',
+                    'Password %s hashed as %s leaked %s times.',
                     self.password,
                     password_hash[:5] + leaked_hash_suffix,
                     leaks

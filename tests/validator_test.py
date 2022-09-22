@@ -1,3 +1,5 @@
+import pytest
+
 from password_validator.validator import (
     PasswordValidator,
     LengthValidator,
@@ -6,7 +8,8 @@ from password_validator.validator import (
     UppercaseValidator,
     NumberValidator,
     PasswordPolicyValidator,
-    HaveIBeenPwnedValidator
+    HaveIBeenPwnedValidator,
+    ValidationError
     )
 
 
@@ -25,48 +28,85 @@ def test_password_is_valid():
 
 
 def test_pass_length():
-    assert LengthValidator('abc').validate() is False
-    assert LengthValidator('1234567').validate()is False
-    assert LengthValidator('1234567', 10).validate()is False
+    with pytest.raises(ValidationError) as error:
+        LengthValidator('abc').validate()
+        assert 'Password is too short!' in str(error.value)
+    with pytest.raises(ValidationError) as error:
+        LengthValidator('1234567').validate()
+        assert 'Password is too short!' in str(error.value)
+    with pytest.raises(ValidationError) as error:
+        LengthValidator('1234567', 10).validate()
+        assert 'Password is too short!' in str(error.value)
+
     assert LengthValidator('12345678').validate() is True
     assert LengthValidator('abcdefghijklmnopqrstuvwxz').validate() is True
     assert LengthValidator('abc', 3).validate() is True
 
 
 def test_pass_has_special_char():
-    assert SpecialCharValidator('abc').validate() is False
-    assert SpecialCharValidator('dsafsa3').validate() is False
-    assert SpecialCharValidator('2fasf').validate() is False
+    with pytest.raises(ValidationError) as error:
+        SpecialCharValidator('abc').validate()
+        assert 'Password must contain at least one special character!' in str(error.value)
+    with pytest.raises(ValidationError) as error:
+        SpecialCharValidator('dsafsa3').validate()
+        assert 'Password must contain at least one special character!' in str(error.value)
+    with pytest.raises(ValidationError) as error:
+        SpecialCharValidator('2fasf').validate()
+        assert 'Password must contain at least one special character!' in str(error.value)
+
     assert SpecialCharValidator('!@#$$%').validate() is True
     assert SpecialCharValidator('ABCD4aASDF0asdf#$').validate() is True
     assert SpecialCharValidator('12345!5678').validate() is True
 
 
 def test_pass_has_number():
-    assert NumberValidator('abc').validate() is False
-    assert NumberValidator('dsafsa').validate() is False
-    assert NumberValidator('fasf').validate() is False
+    with pytest.raises(ValidationError) as error:
+        NumberValidator('abc').validate()
+        assert 'Password must contain at least one number!' in str(error.value)
+    with pytest.raises(ValidationError) as error:
+        NumberValidator('dsafsa').validate()
+        assert 'Password must contain at least one number!' in str(error.value)
+    with pytest.raises(ValidationError) as error:
+        NumberValidator('fasf').validate()
+        assert 'Password must contain at least one number!' in str(error.value)
+
     assert NumberValidator('!@#$$%3').validate() is True
     assert NumberValidator('ABCD4aASDF0asdf#$').validate() is True
     assert NumberValidator('12345!5678').validate() is True
 
 
 def test_pass_has_lowercase():
+    with pytest.raises(ValidationError) as error:
+        LowercaseValidator('!@#$$%').validate()
+        assert 'Password must contain at least one lowercase letter!' in str(error.value)
+    with pytest.raises(ValidationError) as error:
+        LowercaseValidator('ABCD23234$').validate()
+        assert 'Password must contain at least one lowercase letter!' in str(error.value)
+    with pytest.raises(ValidationError) as error:
+        LowercaseValidator('12345!5678').validate()
+        assert 'Password must contain at least one lowercase letter!' in str(error.value)
+
     assert LowercaseValidator('abc').validate() is True
     assert LowercaseValidator('dsafsa3').validate() is True
     assert LowercaseValidator('2fasf').validate() is True
-    assert LowercaseValidator('!@#$$%').validate() is False
-    assert LowercaseValidator('ABCD23234$').validate() is False
-    assert LowercaseValidator('12345!5678').validate() is False
+
 
 
 def test_pass_has_uppercase():
+    with pytest.raises(ValidationError) as error:
+        UppercaseValidator('abc').validate()
+        assert 'Password must contain at least one uppercase letter!' in str(error.value)
+    with pytest.raises(ValidationError) as error:
+        UppercaseValidator('dsafsa3').validate()
+        assert 'Password must contain at least one uppercase letter!' in str(error.value)
+    with pytest.raises(ValidationError) as error:
+        UppercaseValidator('2fasf').validate()
+        assert 'Password must contain at least one uppercase letter!' in str(error.value)
+
     assert UppercaseValidator('!@#$$%XXX').validate() is True
     assert UppercaseValidator('ABCD23234$').validate() is True
     assert UppercaseValidator('12345!5678A').validate() is True
-    assert UppercaseValidator('abc').validate() is False
-    assert UppercaseValidator('dsafsa3').validate() is False
-    assert UppercaseValidator('2fasf').validate() is False
+
 
 
 def test_policy_validator():
