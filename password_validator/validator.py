@@ -124,7 +124,7 @@ class HaveIBeenPwnedValidator(Validator):
         password_hash = self.get_password_hash()
         hash_prefix = password_hash[:5]
         suffix_leaks = self.get_api_response(hash_prefix)
-        suffix_leaks_tup = [(line.split(':')[0], line.split(':')[1]) for line in suffix_leaks]
+        suffix_leaks_tup = [line.split(':') for line in suffix_leaks]
         hashes_leaks = [(hash_prefix + suffix, leaks) for suffix, leaks in suffix_leaks_tup]
 
         for leaked_hash, leaks in hashes_leaks:
