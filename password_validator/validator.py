@@ -15,7 +15,6 @@ logging.basicConfig(level='INFO', filename=log_path)
 
 class ValidationError(Exception):
     """Specific error type for unsuccessful validation"""
-    # pass
 
 
 class Validator(ABC):
@@ -23,6 +22,7 @@ class Validator(ABC):
     @abstractmethod
     def __init__(self):
         pass
+
     @abstractmethod
     def validate(self):
         """Takes password as a string and evaluates if is valid against some conditions"""
