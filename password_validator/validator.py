@@ -124,13 +124,16 @@ class HaveIBeenPwnedValidator(Validator):
         password_hash = self.get_password_hash()
         hash_prefix = password_hash[:5]
         suffix_leaks = self.get_api_response(hash_prefix)
-        suffix_leaks_tup = [line.split(':') for line in suffix_leaks]
-        hashes_leaks = [(hash_prefix + suffix, leaks) for suffix, leaks in suffix_leaks_tup]
+        hashes_leaks = [line.split(':') for line in suffix_leaks]
 
-        for leaked_hash, leaks in hashes_leaks:
-            if leaked_hash == password_hash:
-                # logging.info(f'Hasło: {password} o hashu {leaked_hash} wyciekło {leaks} razy.')
-                logging.info('Hasło: %s o hashu %s wyciekło %s razy.', self.password, leaked_hash, leaks)
+        for leaked_hash_suffix, leaks in hashes_leaks:
+            if leaked_hash_suffix == password_hash[5:]:
+                logging.info(
+                    'Hasło: %s o hashu %s wyciekło %s razy.',
+                    self.password,
+                    password_hash[:5] + leaked_hash_suffix,
+                    leaks
+                )
                 return False
         return True
 
